@@ -54,7 +54,7 @@ int opcodes[][4] = {
 	{0,       0,0,0},  //NOP
 	{a1,      0,0,0},  //LDD (load direct)
 	{m1,m0,r1,a1},     //LDI (load indirect)
-	{m1,a0|m0,r1,a1},  //STA (store)
+	{m1,a0|m0,r0, 0},  //STA (store)
 	{hlt,     0,0,0},  //HALT
 	{a0,o0,     0,0},  //OUT
 	{c1,      0,0,0},  //JMP
