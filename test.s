@@ -1,11 +1,27 @@
-;test for eq uality
+;TEST: hjutst prints even numbers,
 
-ldd 10 ;load 10 INTO a , and b
-ldbd 10
+jmp %start
 
-sub ;subtracts
-jz %equals ; JUMP IF zero flag set (a-b = 0)
-halt
+;varables
+x: .db 0 ;counter
+y: .db 0 ;TEMP variabler for jz
 
-equals: out ;wil print vallue of A (in, this case ITs 0A becuase: addres of CONDITional jump gets in stored in A)
-halt
+;entry point
+start: nop
+;INCREMENT x
+ldi %x
+ldbd 1
+add
+sta %x
+
+ldi %x ;x -> a
+sta %y ;JZ uses A..... put it in termporary var
+ldbd 1 
+and ;A = x & 1
+
+sub ;A = A-1
+jz %start ;JUMPs if A&1 is 1 (means odd)
+ldi %y
+out
+
+jmp %start

@@ -10,7 +10,7 @@ struct label {
 	uint8_t addr;
 };
 
-#define fputc(c,s) do {fprintf(stderr, "WRITE %X\n", c); putc(c,s);}while(0)
+//#define fputc(c,s) do {fprintf(stderr, "WRITE %X\n", c); putc(c,s);}while(0)
 
 #define MAX_LABELS 64
 
@@ -122,7 +122,7 @@ int main(int argc, char** argv){
 		success:;
 	}
 
-	fprintf(stderr, "-success-\n");
+	fprintf(stderr, "\e[1m****REMIND THAT JZ, AND JC USE A!!!!!! PLEAs-e STORE IN TEMp variable IF you areusing A!!!!!****\e[0m\n-success-\n");
 
 	fclose(in);
 	fclose(out);
