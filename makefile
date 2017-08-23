@@ -1,4 +1,5 @@
-OBJS = $(patsubst %.c,%.o,$(shell find -name "*.c"))
+#OBJS = $(patsubst %.c,%.o,$(shell find -name "*.c"))
+OBJS = main.o
 LIBS = 
 OUT = ./vcpu
 CFLAGS = -O3 -Wall -fgnu89-inline
@@ -12,6 +13,9 @@ $(OUT): $(OBJS)
 
 install: $(OUT)
 	install $(OUT) $(PREFIX)
+
+assembler: assembler.o
+	$(CC) $(CFLAGS) assembler.o -o assembler
 
 debug: CFLAGS += -ggdb -DYDEBUG
 debug: $(OUT)
