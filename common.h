@@ -1,5 +1,6 @@
 #define b 1 <<
 
+#if 0
 enum microinstrs {
 	//data wires
 	c0 = b 1,  //PC  -> MAR
@@ -25,28 +26,80 @@ enum microinstrs {
 	pcinc = b 19,
 	ipexec = b 20,
 	stop = b 21,
+	carry = b 22, //A->BUS if carry set
 	//alu ops
-	add = b 22,
-	sub = b 23,
-	and = b 24,
-	or  = b 25,
-	xor = b 26
+	add = b 23,
+	sub = b 24,
+	and = b 25,
+	or  = b 26,
+	xor = b 27
 };
+#else
+#define GEN_MICRO_INSTRS \
+X(nop)\
+/*WIRES*/\
+X(c0)  /*PC  -> MAR*/\
+X(c1)  /*BUS -> PC*/\
+X(c2)  /*PC  -> BUS*/\
+X(m0)  /*MAR -> RAM*/\
+X(m1)  /*BUS -> MAR*/\
+X(r0)  /*BUS -> RAM*/\
+X(r1)  /*RAM -> BUS*/\
+X(a0)  /*A   -> BUS*/\
+X(a1)  /*BUS -> A*/\
+X(a2)  /*A   -> ALU*/\
+X(a3)  /*ALU -> A*/\
+X(b0)  /*BUS -> B*/\
+X(b1)  /*B   -> BUS*/\
+X(o0)  /*BUS -> OUT*/\
+X(i0)  /*IR(lo) -> BUS*/\
+X(i1)  /*RAM -> IR(lo)*/\
+X(p0)  /*BUS -> IP*/\
+/*OPERATIONS*/\
+X(hlt)\
+X(irswp)\
+X(pcinc)\
+X(ipexec)\
+X(stop)\
+X(carry) /*A->BUS if carry set*/\
+X(zero)  /*A->BUS if zero set*/\
+/*ALU OPS*/\
+X(add)\
+X(sub)\
+X(and)\
+X(or)\
+X(xor)\
+
+//WORKaroud maybe conter not beign 0
+enum {COUNTER_BASE = (__COUNTER__+1)};
+
+enum {
+#define X(w) w = 1<<(__COUNTER__-COUNTER_BASE),
+GEN_MICRO_INSTRS
+_m_i_count_
+};
+
+#endif
+
 
 int opcodes[][4] = {
 	{0,       0,0,0},  //NOP
 	{a1,      0,0,0},  //LDD (load direct)
 	{m1,m0,r1,a1},     //LDI (load indirect)
 	{m1,a0|m0,r0, 0},  //STA (store)
+	{b0,      0,0,0},  //LDBD (load direct B)
+	{m1,m0,r1,b0},     //LDBI (load indirect B)
 	{hlt,     0,0,0},  //HALT
 	{a0,o0,     0,0},  //OUT
 	{c1,      0,0,0},  //JMP
-	{b0,b1|a2,add,a3}, //ADD
-	{b0,b1|a2,sub,a3}, //SUB
-	{b0,b1|a2,and,a3}, //AND
-	{b0,b1|a2,or, a3}, //OR
-	{b0,b1|a2,xor,a3}  //XOR
+	{0,b1|a2,add,a3},  //ADD
+	{0,b1|a2,sub,a3},  //SUB
+	{0,b1|a2,and,a3},  //AND
+	{0,b1|a2,or, a3},  //OR
+	{0,b1|a2,xor,a3},  //XOR
+	{a1,c2,carry,c1}, //JC (jump, if CARRY)
+	{a1,c2,zero,c1}   //JZ (jump, if ZERo)
 };
 
-char* opcodes_strings[] = {"NOP", "LDD", "LDI", "STA", "HALT", "OUT", "JMP", "ADD", "SUB", "AND", "OR", "XOR"};
+char* opcodes_strings[] = {"NOP", "LDD", "LDI", "STA", "LDBD", "LDBI", "HALT", "OUT", "JMP", "ADD", "SUB", "AND", "OR", "XOR", "JC", "JZ"};
 #define OPCODE_COUNT (sizeof(opcodes_strings)/sizeof(*opcodes_strings))

@@ -14,8 +14,10 @@ $(OUT): $(OBJS)
 install: $(OUT)
 	install $(OUT) $(PREFIX)
 
-assembler: assembler.o
-	$(CC) $(CFLAGS) assembler.o -o assembler
+.PHONY: assembler
+
+assembler: 
+	$(CC) $(CFLAGS) assembler.c -o assembler
 
 debug: CFLAGS += -ggdb -DYDEBUG
 debug: $(OUT)

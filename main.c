@@ -14,7 +14,7 @@ uint8_t  BUS, A, B, PC, MAR, IP, RAM[0x100], RAM_addr;
 uint16_t IR;  //lo: instr, hi: operand
 uint16_t ALU; //hi: B, lo: A; result in lo
 
-#define CYCLE_SPEED 10000
+#define CYCLE_SPEED 5000
 
 void reset(void);
 void exec_microcode(int* mcodes, uint8_t count);
@@ -59,12 +59,21 @@ void exec_microcode(int* mcodes, uint8_t count) {
 		int mcode = mcodes[i];
 		
 		#define op(bit) if (mcode & (bit))
-		#define alu(bit, o) op(bit) ALU = (ALU & 0x00FF) o ((ALU & 0xFF00) >> 8)
+		#define alu(bit, o) op(bit) {\
+			uint8_t n1 = ALU&0x00FF, n2 = (ALU&0xFF00) >> 8;\
+			ALU = 0;\
+			switch(*#o) {\
+				case '+': if (n1+n2 > 0xFF) ALU = 0x100; break;\
+				case '-': if (n2>n1) ALU = 0x100; if(n2 == n1) ALU |= 0x200; break;\
+			}\
+			ALU |= (n1 o n2) & 0xFF;\
+		}
 		#define wire(bit, src, dest) op(bit) dest = src
 		
 		//wires
 		wire(c0, PC, MAR);
 		wire(c1, BUS, PC);
+		wire(c2, PC, BUS);
 		wire(m0, MAR, RAM_addr);
 		wire(m1, BUS, MAR);
 		op(r0) RAM[RAM_addr] = BUS;
@@ -81,7 +90,7 @@ void exec_microcode(int* mcodes, uint8_t count) {
 		wire(p0, BUS, IP);
 		//op
 		op(nop);
-		op(hlt) while(1);
+		op(hlt) {printf("HALT\n");while(1);}
 		op(irswp) IR = (IR >> 8) | (IR << 8);
 		op(pcinc) PC++;
 		op(ipexec) {
@@ -93,6 +102,8 @@ void exec_microcode(int* mcodes, uint8_t count) {
 			exec_microcode(opcodes[IP], 4);
 			status;
 		}
+		op(carry) if (ALU & (1<<8)) BUS = A;
+		op(zero) if (ALU & (1<<9)) BUS = A;
 		//alu ops
 		alu(add, +);
 		alu(sub, -);

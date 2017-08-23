@@ -122,6 +122,8 @@ int main(int argc, char** argv){
 		success:;
 	}
 
+	fprintf(stderr, "-success-\n");
+
 	fclose(in);
 	fclose(out);
 }
