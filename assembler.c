@@ -34,7 +34,7 @@ int main(int argc, char** argv){
 			//.db nnnn
 			fputc(operand >> 8, out);
 			fputc(operand & 0xFF, out);
-			goto matched;
+			continue;
 		}
 	
 		for (int i = 0; i <= strlen(mnemonic); i++) mnemonic[i] = toupper(mnemonic[i]);
@@ -44,13 +44,11 @@ int main(int argc, char** argv){
 				//eqals
 				fputc((uint8_t) i, out);
 				fputc((uint8_t) operand, out);
-				goto matched;
+				continue;
 			}
 		}
 
 		fprintf(stderr, "INVALID MNEMONIC '%s'\n", mnemonic);
-
-		matched:;
 	}
 
 	fclose(in);
