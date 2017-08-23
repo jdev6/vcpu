@@ -1,5 +1,7 @@
 *.swp
 *.d
 *.o
+*.v
+*.vim
 vcpu
 assembler
